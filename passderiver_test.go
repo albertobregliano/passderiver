@@ -4,9 +4,13 @@
 // Password length can be chosen from 8 to 21 characters.
 // Renewing passwords for the same website can be done chosing a different num.
 
-package passderiver
+package passderiver_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/albertobregliano/passderiver"
+)
 
 func TestDerive(t *testing.T) {
 	type args struct {
@@ -29,7 +33,7 @@ func TestDerive(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Derive(tt.args.userSecret, tt.args.site, tt.args.num, tt.args.length); got != tt.want {
+			if got := passderiver.Derive(tt.args.userSecret, tt.args.site, tt.args.num, tt.args.length); got != tt.want {
 				t.Errorf("Derive() = %v, want %v", got, tt.want)
 			}
 		})
