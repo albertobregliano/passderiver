@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -18,6 +19,7 @@ func main() {
 	site := flag.String("s", "", "website")
 	num := flag.Int("n", 1, "number")
 	length := flag.Int("l", 12, "length of the password")
+	print := flag.Bool("p", false, "print password on screen")
 	flag.Parse()
 
 	// Store the mastersecret in a local variable.
@@ -33,10 +35,14 @@ func main() {
 
 	derivedPwd := string(passderiver.Derive(userSecret, *site, *num, *length))
 
-	// The password is copied in the clipboard and not printed.
-	err := clipboard.WriteAll(derivedPwd)
-	if err != nil {
-		log.Fatal(err)
+	if *print {
+		fmt.Println(derivedPwd)
+	} else {
+		// The password is copied in the clipboard and not printed.
+		err := clipboard.WriteAll(derivedPwd)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
