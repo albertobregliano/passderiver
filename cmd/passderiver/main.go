@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/albertobregliano/passderiver"
@@ -28,12 +29,20 @@ func main() {
 		log.Fatal("passderiver secret not found")
 	}
 
+	if *username == "" {
+		*username = os.Getenv("passderiveruser")
+		fmt.Println("username: ", *username)
+	}
+
 	var userSecret = hashify(*username + secret)
 
 	// Customize the salt used in the scrypt.
 	passderiver.Salt = []byte("passderiveriscool")
 
-	derivedPwd := string(passderiver.Derive(userSecret, *site, *num, *length))
+	host := getDomain(*site)
+	fmt.Println("site: ", host)
+
+	derivedPwd := string(passderiver.Derive(userSecret, host, *num, *length))
 
 	if *print {
 		fmt.Println(derivedPwd)
@@ -50,4 +59,11 @@ func hashify(s string) string {
 	h := sha256.New()
 	h.Write([]byte(s))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func getDomain(u string) string {
+
+	uri, _ := url.Parse(u)
+
+	return uri.Host
 }
