@@ -19,24 +19,18 @@ import (
 
 // Derive returns the coded password.
 func Derive(userkey []byte, site string, num, length int) string {
-
 	if num <= 0 {
 		num = 1
 	}
-
 	if length < 8 {
 		length = 8
 	}
-
 	if length > 21 {
 		length = 21
 	}
-
 	mac := hmac.New(sha256.New, userkey)
 	mac.Write([]byte(site + strconv.Itoa(num)))
-
 	hs := base64.RawStdEncoding.EncodeToString(mac.Sum(nil))
-
 	var hss []rune
 	for index, r := range hs {
 		if index%2 == 0 {
@@ -46,13 +40,11 @@ func Derive(userkey []byte, site string, num, length int) string {
 			break
 		}
 	}
-
 	var seed = 1
 	for _, r := range hss {
 		seed *= int(r)
 	}
 	randomizer := rand.New(rand.NewSource(int64(seed * num * length)))
-
 	for index := range hss {
 		if index == 4 {
 			n := randomElement(LOWER, randomizer)
@@ -71,19 +63,16 @@ func Derive(userkey []byte, site string, num, length int) string {
 			hss = append(hss, rune(n))
 		}
 	}
-
 	pass := hss[len(hss)-length:]
 	randomizer.Shuffle(len(pass), func(i, j int) {
 		pass[i], pass[j] = pass[j], pass[i]
 	})
-
 	if !utf8.Valid([]byte(string(pass))) {
 		panic(fmt.Errorf("not utf8"))
 	}
 	if !checkRequirements(string(pass)) {
 		panic(fmt.Errorf("requirements not met"))
 	}
-
 	return string(pass)
 }
 
