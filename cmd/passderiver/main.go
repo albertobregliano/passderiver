@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"github.com/albertobregliano/passderiver"
-	"github.com/albertobregliano/passderiver/vendor/golang.org/x/crypto/scrypt"
+	"golang.org/x/crypto/scrypt"
 
 	"github.com/atotto/clipboard"
 )

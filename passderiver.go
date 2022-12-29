@@ -15,14 +15,10 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
-
-	"golang.org/x/crypto/scrypt"
 )
 
-var Salt = []byte{0xa1, 0xb2, 0xc3, 0xd4, 0xe5, 0x6a, 0x7b, 0x8c}
-
 // Derive returns the coded password.
-func Derive(userSecret, site string, num, length int) string {
+func Derive(userkey []byte, site string, num, length int) string {
 
 	if num <= 0 {
 		num = 1
@@ -34,11 +30,6 @@ func Derive(userSecret, site string, num, length int) string {
 
 	if length > 21 {
 		length = 21
-	}
-
-	userkey, err := scrypt.Key([]byte(userSecret), Salt, 1<<15, 8, 1, 32)
-	if err != nil {
-		panic(err)
 	}
 
 	mac := hmac.New(sha256.New, userkey)
