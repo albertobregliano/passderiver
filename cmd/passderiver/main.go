@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/albertobregliano/passderiver"
+	"github.com/albertobregliano/passderiver/vendor/golang.org/x/crypto/scrypt"
 
 	"github.com/atotto/clipboard"
 )
@@ -37,12 +38,17 @@ func main() {
 	var userSecret = hashify(*username + secret)
 
 	// Customize the salt used in the scrypt.
-	passderiver.Salt = []byte("passderiveriscool")
+	var salt = []byte("passderiveriscool")
+
+	userkey, err := scrypt.Key([]byte(userSecret), salt, 1<<15, 8, 1, 32)
+	if err != nil {
+		panic(err)
+	}
 
 	host := getDomain(*site)
 	fmt.Println("site: ", host)
 
-	derivedPwd := string(passderiver.Derive(userSecret, host, *num, *length))
+	derivedPwd := string(passderiver.Derive(userkey, host, *num, *length))
 
 	if *print {
 		fmt.Println(derivedPwd)
@@ -63,7 +69,13 @@ func hashify(s string) string {
 
 func getDomain(u string) string {
 
-	uri, _ := url.Parse(u)
+	uri, err := url.Parse(u)
+	if err != nil {
+		log.Println(err)
+	}
+	if uri.Host == "" {
+		return u
+	}
 
 	return uri.Host
 }
